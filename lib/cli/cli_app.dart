@@ -24,7 +24,7 @@ class CliApp {
 
       // EOF (e.g. piped stdin closed): stop instead of looping forever.
       if (choice == null) {
-        print('Bye! 👋');
+        print('Thanks for using Task Manager. Bye!');
         break;
       }
 
@@ -44,7 +44,7 @@ class CliApp {
             break;
           case '5':
             running = false;
-            print('Bye! 👋');
+            print('Thanks for using Task Manager. Bye!');
             break;
           default:
             print('Invalid choice, please pick a number from 1 to 5.\n');
@@ -52,7 +52,7 @@ class CliApp {
       } on AppException catch (e) {
         // Catch our own custom exceptions so the app never crashes,
         // it just shows a clean error message and loops back to the menu.
-        print('❌ Error: $e\n');
+        print(' Error: $e\n');
       }
     }
   }
@@ -114,7 +114,7 @@ class CliApp {
     }
 
     await repository.add(task);
-    print('✅ Task added.\n');
+    print('Task added.\n');
   }
 
   void _listTasks() {
@@ -141,13 +141,13 @@ class CliApp {
     stdout.write('Task id to mark as done: ');
     final id = (stdin.readLineSync() ?? '').trim();
     await repository.markDone(id);
-    print('✅ Task marked as done.\n');
+    print('Task marked as done.\n');
   }
 
   Future<void> _deleteTask() async {
     stdout.write('Task id to delete: ');
     final id = (stdin.readLineSync() ?? '').trim();
     await repository.delete(id);
-    print('🗑️  Task deleted.\n');
+    print('Task deleted.\n');
   }
 }
