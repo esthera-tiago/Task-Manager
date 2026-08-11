@@ -1,0 +1,15 @@
+name: task_manager_cli
+description: >
+  CLI Task Manager built in pure Dart - final project for the
+  Next Flutter certification (FFSC).
+version: 1.0.0
+publish_to: 'none'
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  # No external dependency needed, everything is done with pure Dart (dart:io, dart:convert)
+
+dev_dependencies:
+  test: ^1.24.0
