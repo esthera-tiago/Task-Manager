@@ -1,0 +1,12 @@
+# Dart / Pub related
+.dart_tool/
+.packages
+build/
+pubspec.lock
+
+# Runtime data file created by the app, should not be committed
+tasks.json
+
+# IDE
+.idea/
+*.iml

@@ -3,6 +3,8 @@
 Projet final réalisé pour la **certification Next Flutter (FFSC)**.
 Une application en ligne de commande, écrite en **Dart pur** (aucune dépendance externe, aucun Flutter), qui permet de gérer une liste de tâches persistée localement dans un fichier JSON.
 
+![Demo](doc/demo_screenchot.png)
+
 ---
 
 ## Fonctionnalités
