@@ -1,16 +1,9 @@
-import 'task.dart';
 import 'priority.dart';
+import 'task.dart';
 
-// UrgentTask is a special kind of Task:
-// - it is ALWAYS "high" priority (forced in the constructor)
-// - it always needs a deadline
-// - it has one extra field: escalateAfterHours
-// This shows real inheritance: same base fields + extra behaviour.
 class UrgentTask extends Task {
   final int escalateAfterHours;
 
-  // Note: we can't mix "super.id" shorthand with an explicit super(...)
-  // call in the same constructor, so here everything is passed explicitly.
   UrgentTask({
     required String id,
     required String title,
@@ -27,9 +20,9 @@ class UrgentTask extends Task {
 
   @override
   String describe() {
-    final status = isDone ? '[x]' : '[ ]';
-    final deadlineStr = deadline!.toIso8601String().split('T').first;
-    return '$status 🚨 URGENT: $title (due $deadlineStr, escalates after '
+    final status = isDone ? 'done' : 'pending';
+    final date = deadline!.toIso8601String().split('T').first;
+    return '[$status] [urgent] $title (due $date, escalates after '
         '$escalateAfterHours h)';
   }
 

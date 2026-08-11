@@ -3,11 +3,6 @@
 Projet final réalisé pour la **certification Next Flutter (FFSC)**.
 Une application en ligne de commande, écrite en **Dart pur** (aucune dépendance externe, aucun Flutter), qui permet de gérer une liste de tâches persistée localement dans un fichier JSON.
 
-![Demo](docs/demo_screenshot.png)
-
-> La capture ci-dessus est un aperçu du rendu attendu dans le terminal.
-> Le comportement réel dépendra bien sûr des tâches que vous ajoutez.
-
 ---
 
 ## Fonctionnalités
@@ -55,7 +50,7 @@ task_manager_cli/
 | Generics | `Repository<T>` (interface), implémentée par `TaskRepository implements Repository<Task>` |
 | Exceptions personnalisées | `AppException` → `TaskNotFoundException`, `InvalidTaskException`, `StorageException` |
 | Persistance JSON | `TaskRepository` lit/écrit `tasks.json` avec `dart:convert` + `dart:io` |
-| Tests unitaires (≥ 5) | `test/task_repository_test.dart` (7 tests) |
+| Tests unitaires (≥ 5) | `test/task_repository_test.dart` (11 tests) |
 
 `UrgentTask` est toujours en priorité `high` et possède un champ additionnel
 (`escalateAfterHours`), ce qui illustre un vrai cas d'héritage avec
@@ -88,7 +83,7 @@ lancement pour stocker vos tâches.
 ### Exemple d'utilisation
 
 ```
-=== Task Manager CLI - Next Flutter FFSC ===
+=== Task Manager CLI ===
 ------------------------------
 1. Add a task
 2. List tasks
@@ -101,7 +96,16 @@ Title: Réviser Dart avancé
 Priority (l = low, m = medium, h = high): h
 Is this task urgent? (y/n): n
 Deadline (YYYY-MM-DD, press Enter to skip): 2026-08-05
- Task added.
+Task added.
+
+Choose an option: 2
+Sort by (p = priority, d = date): p
+
+--- Tasks ---
+1 | [pending] [high] Réviser Dart avancé (due 2026-08-05)
+
+Choose an option: 5
+Bye.
 ```
 
 ## Lancer les tests
@@ -112,17 +116,16 @@ dart test
 
 Les tests couvrent notamment :
 - l'ajout et la lecture d'une tâche,
-- le rejet d'un titre vide (`InvalidTaskException`),
-- la suppression d'une tâche existante / inexistante (`TaskNotFoundException`),
+- le rejet d'un titre vide ou d'un identifiant dupliqué (`InvalidTaskException`),
+- la mise à jour et la suppression d'une tâche existante / inexistante (`TaskNotFoundException`),
 - le marquage d'une tâche comme terminée,
-- le tri par priorité (une `UrgentTask` remonte toujours en premier),
+- le tri par priorité (une `UrgentTask` remonte toujours en premier) et par date,
 - la persistance des données après un "redémarrage" du repository (relecture du fichier JSON).
 
 ## Limites connues / pistes d'amélioration
 
-- Les identifiants de tâches sont générés à partir du timestamp
-  (`DateTime.now().microsecondsSinceEpoch`) : simple mais suffisant pour un
-  usage CLI mono-utilisateur.
+- Les identifiants de tâches sont séquentiels (`1`, `2`, `3`...) : simples et
+  lisibles, mais non réutilisables après suppression dans cette version.
 - Pas de gestion de la concurrence (deux instances de l'app lancées en même
   temps pourraient écraser le fichier JSON de l'une par l'autre).
 - Pourrait facilement être étendu avec des catégories/tags, une recherche par

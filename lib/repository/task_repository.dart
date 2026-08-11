@@ -5,8 +5,7 @@ import '../exceptions/task_exceptions.dart';
 import '../models/task.dart';
 import 'repository.dart';
 
-// Concrete repository: implements Repository<Task> and stores
-// everything in a local JSON file (dart:io + dart:convert only).
+// Repository backed by a local JSON file (dart:io + dart:convert only).
 class TaskRepository implements Repository<Task> {
   final File _file;
   List<Task> _tasks = [];
@@ -15,8 +14,7 @@ class TaskRepository implements Repository<Task> {
     _loadSync();
   }
 
-  // Expose a read-only copy so callers can't mutate the internal list
-  // by mistake without going through add/update/delete.
+  // Read-only view so callers cannot mutate the internal list directly.
   List<Task> get tasks => List.unmodifiable(_tasks);
 
   void _loadSync() {
@@ -80,8 +78,6 @@ class TaskRepository implements Repository<Task> {
     }
   }
 
-  // --- helpers used by the CLI layer ---
-
   Task getById(String id) {
     for (final task in _tasks) {
       if (task.id == id) return task;
@@ -90,19 +86,19 @@ class TaskRepository implements Repository<Task> {
   }
 
   Future<void> markDone(String id) async {
-    final task = getById(id); // throws TaskNotFoundException if missing
+    final task = getById(id);
     task.isDone = true;
     await save();
   }
 
-  // Priority.high first, thanks to Task.compareTo (Comparable interface).
+  // High priority first (uses Task.compareTo).
   List<Task> sortedByPriority() {
     final copy = List<Task>.from(_tasks);
     copy.sort();
     return copy;
   }
 
-  // Tasks without deadline are pushed to the end.
+  // Earliest deadline first; tasks without a deadline come last.
   List<Task> sortedByDate() {
     final copy = List<Task>.from(_tasks);
     copy.sort((a, b) {

@@ -7,24 +7,23 @@ import '../models/task.dart';
 import '../models/urgent_task.dart';
 import '../repository/task_repository.dart';
 
-// Small class that owns the terminal menu and talks to the repository.
-// Kept separate from main.dart so the logic is a bit easier to read/test.
+// Owns the terminal menu and talks to the repository.
 class CliApp {
   final TaskRepository repository;
 
   CliApp(String storagePath) : repository = TaskRepository(storagePath);
 
   Future<void> run() async {
-    print('=== Task Manager CLI - Next Flutter FFSC ===');
+    print('=== Task Manager CLI ===');
     var running = true;
 
     while (running) {
       _printMenu();
       final choice = stdin.readLineSync();
 
-      // EOF (e.g. piped stdin closed): stop instead of looping forever.
+      // Piped stdin reached EOF: stop cleanly instead of looping forever.
       if (choice == null) {
-        print('Thanks for using Task Manager. Bye!');
+        print('Bye.');
         break;
       }
 
@@ -44,15 +43,13 @@ class CliApp {
             break;
           case '5':
             running = false;
-            print('Thanks for using Task Manager. Bye!');
+            print('Bye.');
             break;
           default:
             print('Invalid choice, please pick a number from 1 to 5.\n');
         }
       } on AppException catch (e) {
-        // Catch our own custom exceptions so the app never crashes,
-        // it just shows a clean error message and loops back to the menu.
-        print(' Error: $e\n');
+        print('Error: $e\n');
       }
     }
   }
@@ -67,6 +64,16 @@ class CliApp {
 5. Exit
 ------------------------------''');
     stdout.write('Choose an option: ');
+  }
+
+  // Sequential ids: highest numeric id currently stored + 1.
+  String _nextId() {
+    var maxId = 0;
+    for (final task in repository.tasks) {
+      final parsed = int.tryParse(task.id);
+      if (parsed != null && parsed > maxId) maxId = parsed;
+    }
+    return '${maxId + 1}';
   }
 
   Future<void> _addTask() async {
@@ -85,28 +92,31 @@ class CliApp {
 
     DateTime? deadline;
     if (deadlineInput.isNotEmpty) {
-      try {
-        deadline = DateTime.parse(deadlineInput);
-      } catch (_) {
+      if (!RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(deadlineInput)) {
         throw InvalidTaskException(
             'Deadline "$deadlineInput" is not a valid date (expected YYYY-MM-DD).');
       }
+      deadline = DateTime.parse(deadlineInput);
     }
-
-    final id = DateTime.now().microsecondsSinceEpoch.toString();
 
     final Task task;
     if (isUrgent) {
       if (deadline == null) {
         throw InvalidTaskException('An urgent task must have a deadline.');
       }
-      task = UrgentTask(id: id, title: title, deadline: deadline);
+      task = UrgentTask(id: _nextId(), title: title, deadline: deadline);
     } else {
-      final priority = PriorityLabel.fromShortcut(
-        priorityInput.isEmpty ? 'medium' : priorityInput,
-      );
+      final Priority priority;
+      try {
+        priority = PriorityLabel.fromShortcut(
+          priorityInput.isEmpty ? 'medium' : priorityInput,
+        );
+      } on ArgumentError {
+        throw InvalidTaskException(
+            'Unknown priority "$priorityInput" (expected l, m or h).');
+      }
       task = NormalTask(
-        id: id,
+        id: _nextId(),
         title: title,
         priority: priority,
         deadline: deadline,
@@ -126,13 +136,13 @@ class CliApp {
     stdout.write('Sort by (p = priority, d = date): ');
     final sortChoice = (stdin.readLineSync() ?? 'p').trim().toLowerCase();
 
-    final tasks =
-        sortChoice == 'd' ? repository.sortedByDate() : repository.sortedByPriority();
+    final tasks = sortChoice == 'd'
+        ? repository.sortedByDate()
+        : repository.sortedByPriority();
 
     print('\n--- Tasks ---');
     for (final task in tasks) {
-      // Polymorphism: describe() prints differently for NormalTask/UrgentTask.
-      print('${task.id} -> ${task.describe()}');
+      print('${task.id} | ${task.describe()}');
     }
     print('');
   }

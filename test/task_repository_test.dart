@@ -100,4 +100,69 @@ void main() {
     expect(tasks.length, 1);
     expect(tasks.first.title, 'Persisted task');
   });
+
+  test('update() replaces an existing task', () async {
+    final task = NormalTask(id: '9', title: 'Old title', priority: Priority.low);
+    await repository.add(task);
+
+    final updated = NormalTask(
+      id: '9',
+      title: 'New title',
+      priority: Priority.high,
+    );
+    await repository.update(updated);
+
+    final saved = repository.getById('9');
+    expect(saved.title, 'New title');
+    expect(saved.priority, Priority.high);
+  });
+
+  test('add() rejects a duplicate id', () async {
+    await repository.add(
+      NormalTask(id: '10', title: 'First', priority: Priority.low),
+    );
+
+    final duplicate = NormalTask(
+      id: '10',
+      title: 'Second',
+      priority: Priority.low,
+    );
+    expect(() => repository.add(duplicate),
+        throwsA(isA<InvalidTaskException>()));
+  });
+
+  test('getById() throws TaskNotFoundException for an unknown id', () async {
+    expect(() => repository.getById('missing'),
+        throwsA(isA<TaskNotFoundException>()));
+  });
+
+  test('sortedByDate() orders by deadline, tasks without one come last',
+      () async {
+    final noDeadline = NormalTask(
+      id: '11',
+      title: 'No deadline',
+      priority: Priority.medium,
+    );
+    final later = NormalTask(
+      id: '12',
+      title: 'Later',
+      priority: Priority.medium,
+      deadline: DateTime(2030, 12, 31),
+    );
+    final sooner = NormalTask(
+      id: '13',
+      title: 'Sooner',
+      priority: Priority.medium,
+      deadline: DateTime(2030, 1, 1),
+    );
+
+    await repository.add(noDeadline);
+    await repository.add(later);
+    await repository.add(sooner);
+
+    final sorted = repository.sortedByDate();
+    expect(sorted[0].id, '13');
+    expect(sorted[1].id, '12');
+    expect(sorted[2].id, '11');
+  });
 }

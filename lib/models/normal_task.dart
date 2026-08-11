@@ -1,7 +1,6 @@
-import 'task.dart';
 import 'priority.dart';
+import 'task.dart';
 
-// A "regular" task. Nothing special, just the base behaviour.
 class NormalTask extends Task {
   NormalTask({
     required super.id,
@@ -13,11 +12,11 @@ class NormalTask extends Task {
 
   @override
   String describe() {
-    final status = isDone ? '[x]' : '[ ]';
-    final deadlineStr = deadline != null
+    final status = isDone ? 'done' : 'pending';
+    final due = deadline != null
         ? ' (due ${deadline!.toIso8601String().split('T').first})'
         : '';
-    return '$status ${priority.emoji} $title$deadlineStr';
+    return '[$status] [${priority.name}] $title$due';
   }
 
   @override

@@ -1,10 +1,7 @@
-// Priority level for a task.
-// The order low -> medium -> high matters because we use the enum
-// index to sort tasks by priority (high first).
+// Task priority levels. Declaration order matters: it is used when
+// sorting tasks by priority (high first).
 enum Priority { low, medium, high }
 
-// Small extension to get a nice printable label + an emoji.
-// (extension on enum, just like the exercise we did on int before)
 extension PriorityLabel on Priority {
   String get label {
     switch (this) {
@@ -17,19 +14,8 @@ extension PriorityLabel on Priority {
     }
   }
 
-  String get emoji {
-    switch (this) {
-      case Priority.low:
-        return '🟢';
-      case Priority.medium:
-        return '🟡';
-      case Priority.high:
-        return '🔴';
-    }
-  }
-
-  // Helper to convert a string coming from user input ("l", "m", "h")
-  // into a Priority value. Throws if the input is not recognized.
+  // Parses the shortcut used in the CLI prompt ("l", "m", "h"
+  // or the full word). Throws if the input is not recognized.
   static Priority fromShortcut(String input) {
     switch (input.trim().toLowerCase()) {
       case 'l':
